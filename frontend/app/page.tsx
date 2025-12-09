@@ -408,6 +408,12 @@ export default function Home() {
     cleanupCall();
   }
 
+  async function handleNext() {
+    cleanupCall();                     // End current call
+    setStatus("Finding a new stranger...");
+    await handleStart();               // Start a new match
+  }
+  
   // ------------------ UI ------------------
   return (
     <main className="min-h-screen bg-black text-white flex flex-col items-center justify-center gap-6 p-4">
@@ -437,7 +443,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="flex gap-3 mt-4">
+      {/* <div className="flex gap-3 mt-4">
         <button
           onClick={handleStart}
           disabled={inCall}
@@ -453,7 +459,34 @@ export default function Home() {
         >
           End
         </button>
-      </div>
+      </div> */}
+
+<div className="flex gap-3 mt-4">
+  <button
+    onClick={handleStart}
+    disabled={inCall}
+    className="px-4 py-2 bg-green-600 rounded disabled:bg-gray-700"
+  >
+    Start
+  </button>
+
+  <button
+    onClick={handleNext}
+    disabled={!inCall}
+    className="px-4 py-2 bg-blue-600 rounded disabled:bg-gray-700"
+  >
+    Next
+  </button>
+
+  <button
+    onClick={handleEnd}
+    disabled={!inCall}
+    className="px-4 py-2 bg-red-600 rounded disabled:bg-gray-700"
+  >
+    End
+  </button>
+</div>
+
     </main>
   );
 }
