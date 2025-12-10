@@ -167,9 +167,24 @@ import { db } from "../src/lib/firebase";
 
 type Role = "caller" | "callee";
 
+// const iceServers: RTCIceServer[] = [
+//   { urls: "stun:stun.l.google.com:19302" },
+// ];
 const iceServers: RTCIceServer[] = [
   { urls: "stun:stun.l.google.com:19302" },
+
+  {
+    urls: "turn:openrelay.metered.ca:80",
+    username: "openrelayproject",
+    credential: "openrelayproject",
+  },
+  {
+    urls: "turn:openrelay.metered.ca:443",
+    username: "openrelayproject",
+    credential: "openrelayproject",
+  },
 ];
+
 
 export default function Home() {
   const localVideoRef = useRef<HTMLVideoElement | null>(null);
@@ -188,21 +203,54 @@ export default function Home() {
   const [inCall, setInCall] = useState(false);
 
   // ------------------ MEDIA ------------------
-  async function startCamera() {
-    if (localStreamRef.current) return localStreamRef.current;
+  // async function startCamera() {
+  //   if (localStreamRef.current) return localStreamRef.current;
 
+  //   // const stream = await navigator.mediaDevices.getUserMedia({
+  //   //   video: true,
+  //   //   audio: true,
+  //   // });
+  //   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+  //     alert("Camera not supported on this browser or insecure connection.");
+  //     return;
+  //   }
+    
+  //   const stream = await navigator.mediaDevices.getUserMedia({
+  //     video: true,
+  //     audio: true,
+  //   });
+    
+
+  //   localStreamRef.current = stream;
+  //   if (localVideoRef.current) {
+  //     localVideoRef.current.srcObject = stream;
+  //   }
+
+  //   return stream;
+  // }
+  async function startCamera(): Promise<MediaStream> {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      throw new Error("Camera not supported or insecure (HTTP) connection.");
+    }
+  
+    if (localStreamRef.current) {
+      return localStreamRef.current;
+    }
+  
     const stream = await navigator.mediaDevices.getUserMedia({
       video: true,
       audio: true,
     });
-
+  
     localStreamRef.current = stream;
+  
     if (localVideoRef.current) {
       localVideoRef.current.srcObject = stream;
     }
-
-    return stream;
+  
+    return stream; // ✅ ALWAYS returns MediaStream now
   }
+  
 
   // ------------------ MATCHING ------------------
   async function findOrCreateMatch() {
@@ -246,32 +294,66 @@ export default function Home() {
   }
 
   // ------------------ START ------------------
+  // async function handleStart() {
+  //   setStatus("Starting camera...");
+  //   const stream = await startCamera();
+
+  //   setStatus("Finding a stranger...");
+  //   const match = await findOrCreateMatch();
+
+  //   roleRef.current = match.role;
+  //   roomIdRef.current = match.roomId;
+
+  //   setStatus(`Matched as ${match.role}`);
+  //   setInCall(true);
+
+  //   const pc = createPeerConnection();
+  //   pcRef.current = pc;
+
+  //   stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+
+  //   const roomRef = doc(db, "rooms", match.roomId);
+
+  //   if (match.role === "caller") {
+  //     await callerFlow(pc, roomRef);
+  //   } else {
+  //     await calleeFlow(pc, roomRef);
+  //   }
+  // }
+
   async function handleStart() {
-    setStatus("Starting camera...");
-    const stream = await startCamera();
-
-    setStatus("Finding a stranger...");
-    const match = await findOrCreateMatch();
-
-    roleRef.current = match.role;
-    roomIdRef.current = match.roomId;
-
-    setStatus(`Matched as ${match.role}`);
-    setInCall(true);
-
-    const pc = createPeerConnection();
-    pcRef.current = pc;
-
-    stream.getTracks().forEach((track) => pc.addTrack(track, stream));
-
-    const roomRef = doc(db, "rooms", match.roomId);
-
-    if (match.role === "caller") {
-      await callerFlow(pc, roomRef);
-    } else {
-      await calleeFlow(pc, roomRef);
+    try {
+      setStatus("Starting camera...");
+      const stream = await startCamera(); // ✅ Now always MediaStream
+  
+      setStatus("Finding a stranger...");
+      const match = await findOrCreateMatch();
+  
+      roleRef.current = match.role;
+      roomIdRef.current = match.roomId;
+  
+      setStatus(`Matched as ${match.role}`);
+      setInCall(true);
+  
+      const pc = createPeerConnection();
+      pcRef.current = pc;
+  
+      stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+  
+      const roomRef = doc(db, "rooms", match.roomId);
+  
+      if (match.role === "caller") {
+        await callerFlow(pc, roomRef);
+      } else {
+        await calleeFlow(pc, roomRef);
+      }
+    } catch (err) {
+      console.error(err);
+      setStatus("Camera not supported on this device or insecure connection.");
+      alert("Camera access failed. Please use HTTPS (Vercel) or a supported browser.");
     }
   }
+  
 
   // ------------------ CALLER ------------------
   async function callerFlow(pc: RTCPeerConnection, roomRef: any) {
