@@ -167,23 +167,83 @@ import { db } from "../src/lib/firebase";
 
 type Role = "caller" | "callee";
 
+// // const iceServers: RTCIceServer[] = [
+// //   { urls: "stun:stun.l.google.com:19302" },
+// // ];
 // const iceServers: RTCIceServer[] = [
 //   { urls: "stun:stun.l.google.com:19302" },
-// ];
-const iceServers: RTCIceServer[] = [
-  { urls: "stun:stun.l.google.com:19302" },
 
+//   {
+//     urls: "turn:openrelay.metered.ca:80",
+//     username: "openrelayproject",
+//     credential: "openrelayproject",
+//   },
+//   {
+//     urls: "turn:openrelay.metered.ca:443",
+//     username: "openrelayproject",
+//     credential: "openrelayproject",
+//   },
+// ];
+
+const iceServers: RTCIceServer[] = [
   {
-    urls: "turn:openrelay.metered.ca:80",
-    username: "openrelayproject",
-    credential: "openrelayproject",
+    urls: "stun:stun.relay.metered.ca:80"
   },
   {
-    urls: "turn:openrelay.metered.ca:443",
-    username: "openrelayproject",
-    credential: "openrelayproject",
-  },
+    urls: [
+      "turn:global.relay.metered.ca:80?transport=udp",
+      "turns:global.relay.metered.ca:443?transport=tcp"
+    ],
+    username: "c34780a931b136ee92464ce3",
+    credential: "QeT1XvSB+n3GnbZP"
+  }
 ];
+
+
+// var myPeerConnection = new RTCPeerConnection({
+//   iceServers: [
+//       {
+//         urls: "stun:stun.relay.metered.ca:80",
+//       },
+//       {
+//         urls: "turn:global.relay.metered.ca:80",
+//         username: "c34780a931b136ee92464ce3",
+//         credential: "QeT1XvSB+n3GnbZP",
+//       },
+//       {
+//         urls: "turn:global.relay.metered.ca:80?transport=tcp",
+//         username: "c34780a931b136ee92464ce3",
+//         credential: "QeT1XvSB+n3GnbZP",
+//       },
+//       {
+//         urls: "turn:global.relay.metered.ca:443",
+//         username: "c34780a931b136ee92464ce3",
+//         credential: "QeT1XvSB+n3GnbZP",
+//       },
+//       {
+//         urls: "turns:global.relay.metered.ca:443?transport=tcp",
+//         username: "c34780a931b136ee92464ce3",
+//         credential: "QeT1XvSB+n3GnbZP",
+//       },
+//   ],
+// });
+
+// var myPeerConnection = new RTCPeerConnection({
+//   iceServers: [
+//     {
+//       urls: "stun:stun.relay.metered.ca:80"
+//     },
+//     {
+//       urls: [
+//         "turn:global.relay.metered.ca:80?transport=udp",
+//         "turns:global.relay.metered.ca:443?transport=tcp"
+//       ],
+//       username: "c34780a931b136ee92464ce3",
+//       credential: "QeT1XvSB+n3GnbZP"
+//     }
+//   ]
+// });
+
 
 
 export default function Home() {
