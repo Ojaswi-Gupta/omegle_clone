@@ -1,3 +1,751 @@
+
+
+
+// // "use client";
+
+// // import { useRef, useState } from "react";
+// // import {
+// //   collection,
+// //   addDoc,
+// //   getDocs,
+// //   deleteDoc,
+// //   query,
+// //   orderBy,
+// //   limit,
+// //   doc,
+// //   setDoc,
+// //   getDoc,
+// //   updateDoc,
+// //   onSnapshot,
+// //   DocumentSnapshot,
+// //   QuerySnapshot,
+// // } from "firebase/firestore";
+// // import { db } from "../src/lib/firebase";
+
+// // type Role = "caller" | "callee";
+
+
+// // // // const iceServers: RTCIceServer[] = [
+// // // //   { urls: "stun:stun.l.google.com:19302" },
+// // // // ];
+// // // const iceServers: RTCIceServer[] = [
+// // //   { urls: "stun:stun.l.google.com:19302" },
+
+// // //   {
+// // //     urls: "turn:openrelay.metered.ca:80",
+// // //     username: "openrelayproject",
+// // //     credential: "openrelayproject",
+// // //   },
+// // //   {
+// // //     urls: "turn:openrelay.metered.ca:443",
+// // //     username: "openrelayproject",
+// // //     credential: "openrelayproject",
+// // //   },
+// // // ];
+
+// // const iceServers: RTCIceServer[] = [
+// //   {
+// //     urls: "stun:stun.relay.metered.ca:80"
+// //   },
+// //   {
+// //     urls: [
+// //       "turn:global.relay.metered.ca:80?transport=udp",
+// //       "turns:global.relay.metered.ca:443?transport=tcp"
+// //     ],
+// //     username: "c34780a931b136ee92464ce3",
+// //     credential: "QeT1XvSB+n3GnbZP"
+// //   }
+// // ];
+
+
+// // // var myPeerConnection = new RTCPeerConnection({
+// // //   iceServers: [
+// // //       {
+// // //         urls: "stun:stun.relay.metered.ca:80",
+// // //       },
+// // //       {
+// // //         urls: "turn:global.relay.metered.ca:80",
+// // //         username: "c34780a931b136ee92464ce3",
+// // //         credential: "QeT1XvSB+n3GnbZP",
+// // //       },
+// // //       {
+// // //         urls: "turn:global.relay.metered.ca:80?transport=tcp",
+// // //         username: "c34780a931b136ee92464ce3",
+// // //         credential: "QeT1XvSB+n3GnbZP",
+// // //       },
+// // //       {
+// // //         urls: "turn:global.relay.metered.ca:443",
+// // //         username: "c34780a931b136ee92464ce3",
+// // //         credential: "QeT1XvSB+n3GnbZP",
+// // //       },
+// // //       {
+// // //         urls: "turns:global.relay.metered.ca:443?transport=tcp",
+// // //         username: "c34780a931b136ee92464ce3",
+// // //         credential: "QeT1XvSB+n3GnbZP",
+// // //       },
+// // //   ],
+// // // });
+
+// // // var myPeerConnection = new RTCPeerConnection({
+// // //   iceServers: [
+// // //     {
+// // //       urls: "stun:stun.relay.metered.ca:80"
+// // //     },
+// // //     {
+// // //       urls: [
+// // //         "turn:global.relay.metered.ca:80?transport=udp",
+// // //         "turns:global.relay.metered.ca:443?transport=tcp"
+// // //       ],
+// // //       username: "c34780a931b136ee92464ce3",
+// // //       credential: "QeT1XvSB+n3GnbZP"
+// // //     }
+// // //   ]
+// // // });
+
+
+
+// // export default function Home() {
+// //   const localVideoRef = useRef<HTMLVideoElement | null>(null);
+// //   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
+
+// //   const pcRef = useRef<RTCPeerConnection | null>(null);
+// //   const localStreamRef = useRef<MediaStream | null>(null);
+// //   const roomIdRef = useRef<string | null>(null);
+// //   const roleRef = useRef<Role | null>(null);
+
+// //   const roomUnsubRef = useRef<(() => void) | null>(null);
+// //   const callerCandUnsubRef = useRef<(() => void) | null>(null);
+// //   const calleeCandUnsubRef = useRef<(() => void) | null>(null);
+
+// //   const [status, setStatus] = useState("Click Start to find a stranger");
+// //   const [inCall, setInCall] = useState(false);
+
+// //   // ------------------ MEDIA ------------------
+  
+// //   async function startCamera(): Promise<MediaStream> {
+// //     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+// //       throw new Error("Camera not supported or insecure (HTTP) connection.");
+// //     }
+  
+// //     if (localStreamRef.current) {
+// //       return localStreamRef.current;
+// //     }
+  
+// //     const stream = await navigator.mediaDevices.getUserMedia({
+// //       video: true,
+// //       audio: true,
+// //     });
+  
+// //     localStreamRef.current = stream;
+  
+// //     if (localVideoRef.current) {
+// //       localVideoRef.current.srcObject = stream;
+// //     }
+  
+// //     return stream; // ✅ ALWAYS returns MediaStream now
+// //   }
+  
+
+// //   // ------------------ MATCHING ------------------
+// //   // async function findOrCreateMatch() {
+  
+
+// //   type MatchResult = { role: Role; roomId: string };
+
+// //   async function findOrCreateMatch(): Promise<MatchResult> {
+// //     return new Promise(async (resolve) => {
+// //       const waitingRef = collection(db, "waiting");
+// //       const q = query(waitingRef, orderBy("createdAt"), limit(1));
+  
+// //       // Listen for a partner in real time
+// //       const unsubscribe = onSnapshot(q, async (snap) => {
+// //         if (!snap.empty) {
+// //           const partner = snap.docs[0];
+  
+// //           // Stop listening
+// //           unsubscribe();
+  
+// //           // Remove partner from queue
+// //           await deleteDoc(doc(db, "waiting", partner.id));
+  
+// //           resolve({ role: "callee", roomId: partner.id });
+// //         }
+// //       });
+  
+// //       // Add yourself to waiting list
+// //       const newDoc = await addDoc(waitingRef, {
+// //         createdAt: new Date(),
+// //       });
+  
+// //       // If no partner was already waiting → you're caller
+// //       resolve({ role: "caller", roomId: newDoc.id });
+// //     });
+// //   }
+  
+// //   // ------------------ PEER ------------------
+// //   function createPeerConnection() {
+// //     const pc = new RTCPeerConnection({ iceServers });
+
+// //     pc.ontrack = (event) => {
+// //       const [stream] = event.streams;
+// //       if (remoteVideoRef.current) {
+// //         remoteVideoRef.current.srcObject = stream;
+// //       }
+// //     };
+
+// //     pc.onconnectionstatechange = () => {
+// //       if (
+// //         pc.connectionState === "disconnected" ||
+// //         pc.connectionState === "failed"
+// //       ) {
+// //         cleanupCall();
+// //       }
+// //     };
+
+// //     return pc;
+// //   }
+
+// //   // ------------------ START ------------------
+  
+
+// //   async function handleStart() {
+// //     try {
+// //       setStatus("Starting camera...");
+// //       const stream = await startCamera(); // ✅ Now always MediaStream
+  
+// //       setStatus("Finding a stranger...");
+// //       const match = await findOrCreateMatch();
+  
+// //       roleRef.current = match.role;
+// //       roomIdRef.current = match.roomId;
+  
+// //       setStatus(`Matched as ${match.role}`);
+// //       setInCall(true);
+  
+// //       const pc = createPeerConnection();
+// //       pcRef.current = pc;
+  
+// //       stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+  
+// //       const roomRef = doc(db, "rooms", match.roomId);
+  
+// //       if (match.role === "caller") {
+// //         await callerFlow(pc, roomRef);
+// //       } else {
+// //         await calleeFlow(pc, roomRef);
+// //       }
+// //     } catch (err) {
+// //       console.error(err);
+// //       setStatus("Camera not supported on this device or insecure connection.");
+// //       alert("Camera access failed. Please use HTTPS (Vercel) or a supported browser.");
+// //     }
+// //   }
+  
+
+// //   // ------------------ CALLER ------------------
+// //   async function callerFlow(pc: RTCPeerConnection, roomRef: any) {
+// //     await setDoc(roomRef, { createdAt: new Date() });
+
+// //     const callerCandidates = collection(roomRef, "callerCandidates");
+// //     pc.onicecandidate = async (event) => {
+// //       if (event.candidate) {
+// //         await addDoc(callerCandidates, event.candidate.toJSON());
+// //       }
+// //     };
+
+// //     const offer = await pc.createOffer();
+// //     await pc.setLocalDescription(offer);
+
+// //     await setDoc(roomRef, { offer });
+
+   
+// //     roomUnsubRef.current = onSnapshot(
+// //       roomRef,
+// //       async (snap: DocumentSnapshot) => {
+// //         const data = snap.data() as any;
+    
+// //         if (data?.answer && !pc.currentRemoteDescription) {
+// //           await pc.setRemoteDescription(
+// //             new RTCSessionDescription(data.answer)
+// //           );
+// //           setStatus("Connected to stranger!");
+// //         }
+// //       }
+// //     );
+    
+
+
+
+// //     const calleeCandidates = collection(roomRef, "calleeCandidates");
+    
+// //     calleeCandUnsubRef.current = onSnapshot(
+// //       calleeCandidates,
+// //       (snap: QuerySnapshot) => {
+// //         snap.docChanges().forEach((change) => {
+// //           if (change.type === "added") {
+// //             pc.addIceCandidate(new RTCIceCandidate(change.doc.data()));
+// //           }
+// //         });
+// //       }
+// //     );
+    
+// //   }
+
+// //   // ------------------ CALLEE ------------------
+// //   async function calleeFlow(pc: RTCPeerConnection, roomRef: any) {
+// //     const calleeCandidates = collection(roomRef, "calleeCandidates");
+// //     pc.onicecandidate = async (event) => {
+// //       if (event.candidate) {
+// //         await addDoc(calleeCandidates, event.candidate.toJSON());
+// //       }
+// //     };
+
+// //     const roomSnap = await getDoc(roomRef);
+// //     const data = roomSnap.data() as any;
+
+// //     await pc.setRemoteDescription(
+// //       new RTCSessionDescription(data.offer)
+// //     );
+
+
+// //     const answer = await pc.createAnswer();
+// //     await pc.setLocalDescription(answer);
+
+// //     await updateDoc(roomRef, { answer });
+
+// //     setStatus("Connected to stranger!");
+
+// //     const callerCandidates = collection(roomRef, "callerCandidates");
+  
+
+// //     callerCandUnsubRef.current = onSnapshot(
+// //       callerCandidates,
+// //       (snap: QuerySnapshot) => {
+// //         snap.docChanges().forEach((change) => {
+// //           if (change.type === "added") {
+// //             pc.addIceCandidate(new RTCIceCandidate(change.doc.data()));
+// //           }
+// //         });
+// //       }
+// //     );
+    
+// //   }
+
+// //   // ------------------ CLEANUP ------------------
+// //   function cleanupCall() {
+// //     setInCall(false);
+// //     setStatus("Call ended");
+
+// //     roomUnsubRef.current?.();
+// //     callerCandUnsubRef.current?.();
+// //     calleeCandUnsubRef.current?.();
+
+// //     pcRef.current?.close();
+// //     pcRef.current = null;
+
+// //     if (remoteVideoRef.current) {
+// //       const stream = remoteVideoRef.current.srcObject as MediaStream | null;
+// //       stream?.getTracks().forEach((t) => t.stop());
+// //       remoteVideoRef.current.srcObject = null;
+// //     }
+// //   }
+
+// //   function handleEnd() {
+// //     cleanupCall();
+// //   }
+
+// //   async function handleNext() {
+// //     cleanupCall();                     // End current call
+// //     setStatus("Finding a new stranger...");
+// //     await handleStart();               // Start a new match
+// //   }
+  
+// //   // ------------------ UI ------------------
+// //   return (
+// //     <main className="min-h-screen bg-black text-white flex flex-col items-center justify-center gap-6 p-4">
+// //       <h1 className="text-3xl font-bold">Mini Omegle</h1>
+// //       <p className="text-gray-400 text-sm text-center">{status}</p>
+
+// //       <div className="flex flex-col md:flex-row gap-4">
+// //         <div className="flex flex-col items-center gap-2">
+// //           <span className="text-xs text-gray-400">You</span>
+// //           <video
+// //             ref={localVideoRef}
+// //             autoPlay
+// //             muted
+// //             playsInline
+// //             className="w-64 h-48 bg-gray-800 rounded-xl"
+// //           />
+// //         </div>
+
+// //         <div className="flex flex-col items-center gap-2">
+// //           <span className="text-xs text-gray-400">Stranger</span>
+// //           <video
+// //             ref={remoteVideoRef}
+// //             autoPlay
+// //             playsInline
+// //             className="w-64 h-48 bg-gray-800 rounded-xl"
+// //           />
+// //         </div>
+// //       </div>
+
+// //       {/* <div className="flex gap-3 mt-4">
+// //         <button
+// //           onClick={handleStart}
+// //           disabled={inCall}
+// //           className="px-4 py-2 bg-green-600 rounded disabled:bg-gray-700"
+// //         >
+// //           Start
+// //         </button>
+
+// //         <button
+// //           onClick={handleEnd}
+// //           disabled={!inCall}
+// //           className="px-4 py-2 bg-red-600 rounded disabled:bg-gray-700"
+// //         >
+// //           End
+// //         </button>
+// //       </div> */}
+
+// // <div className="flex gap-3 mt-4">
+// //   <button
+// //     onClick={handleStart}
+// //     disabled={inCall}
+// //     className="px-4 py-2 bg-green-600 rounded disabled:bg-gray-700"
+// //   >
+// //     Start
+// //   </button>
+
+// //   <button
+// //     onClick={handleNext}
+// //     disabled={!inCall}
+// //     className="px-4 py-2 bg-blue-600 rounded disabled:bg-gray-700"
+// //   >
+// //     Next
+// //   </button>
+
+// //   <button
+// //     onClick={handleEnd}
+// //     disabled={!inCall}
+// //     className="px-4 py-2 bg-red-600 rounded disabled:bg-gray-700"
+// //   >
+// //     End
+// //   </button>
+// // </div>
+
+// //     </main>
+// //   );
+// // }
+
+
+
+// "use client";
+
+// import { useRef, useState } from "react";
+// import {
+//   collection,
+//   addDoc,
+//   deleteDoc,
+//   query,
+//   orderBy,
+//   limit,
+//   doc,
+//   setDoc,
+//   getDoc,
+//   updateDoc,
+//   onSnapshot,
+//   DocumentSnapshot,
+//   QuerySnapshot,
+// } from "firebase/firestore";
+// import { db } from "../src/lib/firebase";
+
+// type Role = "caller" | "callee";
+// type MatchResult = { role: Role; roomId: string };
+
+// // ---------- ICE / TURN (Metered) ----------
+// const iceServers: RTCIceServer[] = [
+//   { urls: "stun:stun.relay.metered.ca:80" },
+//   {
+//     urls: [
+//       // correct TURN ports: 3478 for TURN, 5349 for TURN over TLS
+//       "turn:global.relay.metered.ca:3478?transport=udp",
+//       "turns:global.relay.metered.ca:5349?transport=tcp",
+//     ],
+//     username: "c34780a931b136ee92464ce3",
+//     credential: "QeT1XvSB+n3GnbZP",
+//   },
+// ];
+
+// // ---------- Component ----------
+// export default function Home() {
+//   const localVideoRef = useRef<HTMLVideoElement | null>(null);
+//   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
+
+//   const pcRef = useRef<RTCPeerConnection | null>(null);
+//   const localStreamRef = useRef<MediaStream | null>(null);
+//   const roomIdRef = useRef<string | null>(null);
+//   const roleRef = useRef<Role | null>(null);
+
+//   const roomUnsubRef = useRef<(() => void) | null>(null);
+//   const callerCandUnsubRef = useRef<(() => void) | null>(null);
+//   const calleeCandUnsubRef = useRef<(() => void) | null>(null);
+
+//   const [status, setStatus] = useState("Click Start to find a stranger");
+//   const [inCall, setInCall] = useState(false);
+
+//   // ------------------ MEDIA ------------------
+//   async function startCamera(): Promise<MediaStream> {
+//     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+//       throw new Error("Camera not supported or insecure (HTTP) connection.");
+//     }
+
+//     if (localStreamRef.current) return localStreamRef.current;
+
+//     const stream = await navigator.mediaDevices.getUserMedia({
+//       video: true,
+//       audio: true,
+//     });
+
+//     localStreamRef.current = stream;
+//     if (localVideoRef.current) localVideoRef.current.srcObject = stream;
+//     return stream;
+//   }
+
+//   // ------------------ MATCHING ------------------
+//   // Real-time fast matching: listen then add yourself
+//   async function findOrCreateMatch(): Promise<MatchResult> {
+//     return new Promise(async (resolve) => {
+//       const waitingRef = collection(db, "waiting");
+//       const q = query(waitingRef, orderBy("createdAt"), limit(1));
+
+//       const unsubscribe = onSnapshot(q, async (snap) => {
+//         if (!snap.empty) {
+//           const partner = snap.docs[0];
+//           // stop listening before modifying DB
+//           unsubscribe();
+
+//           // remove partner and join as callee
+//           await deleteDoc(doc(db, "waiting", partner.id));
+//           resolve({ role: "callee", roomId: partner.id });
+//         }
+//       });
+
+//       // If nobody was waiting at that instant, add yourself
+//       const newDoc = await addDoc(waitingRef, { createdAt: new Date() });
+
+//       // Immediately resolve as caller (if the listener didn't already resolve)
+//       // If a partner existed the listener would have resolved and unsubscribe was called.
+//       resolve({ role: "caller", roomId: newDoc.id });
+//     });
+//   }
+
+//   // ------------------ PEER ------------------
+//   function createPeerConnection(): RTCPeerConnection {
+//     const pc = new RTCPeerConnection({ iceServers });
+
+//     pc.ontrack = (event) => {
+//       const [stream] = event.streams;
+//       if (remoteVideoRef.current) remoteVideoRef.current.srcObject = stream;
+//     };
+
+//     pc.oniceconnectionstatechange = () => {
+//       // helpful for debugging in console
+//       // possible states: "new", "checking", "connected", "completed", "failed", "disconnected", "closed"
+//       // if connection failed/disconnected, cleanup
+//       // eslint-disable-next-line no-console
+//       console.log("ICE state:", pc.iceConnectionState);
+//       if (pc.iceConnectionState === "disconnected" || pc.iceConnectionState === "failed") {
+//         cleanupCall();
+//       }
+//     };
+
+//     return pc;
+//   }
+
+//   // ------------------ START ------------------
+//   async function handleStart() {
+//     try {
+//       setStatus("Starting camera...");
+//       const stream = await startCamera();
+
+//       setStatus("Finding a stranger...");
+//       const match = await findOrCreateMatch();
+
+//       roleRef.current = match.role;
+//       roomIdRef.current = match.roomId;
+
+//       setStatus(`Matched as ${match.role}`);
+//       setInCall(true);
+
+//       const pc = createPeerConnection();
+//       pcRef.current = pc;
+
+//       // add local tracks before offer/answer so ontrack triggers quicker
+//       stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+
+//       const roomRef = doc(db, "rooms", match.roomId);
+
+//       if (match.role === "caller") {
+//         await callerFlow(pc, roomRef);
+//       } else {
+//         await calleeFlow(pc, roomRef);
+//       }
+//     } catch (err) {
+//       console.error(err);
+//       setStatus("Camera not supported on this device or insecure connection.");
+//       alert("Camera access failed. Please use HTTPS (Vercel) or a supported browser.");
+//     }
+//   }
+
+//   // ------------------ CALLER ------------------
+//   async function callerFlow(pc: RTCPeerConnection, roomRef: any) {
+//     // write a root doc for room
+//     await setDoc(roomRef, { createdAt: new Date() });
+
+//     // ICE candidates from caller -> Saved in callerCandidates
+//     const callerCandidates = collection(roomRef, "callerCandidates");
+//     pc.onicecandidate = async (event) => {
+//       if (event.candidate) {
+//         await addDoc(callerCandidates, event.candidate.toJSON());
+//       }
+//     };
+
+//     // create offer
+//     const offer = await pc.createOffer();
+//     await pc.setLocalDescription(offer);
+
+//     // store offer (serialize)
+//     await setDoc(roomRef, { offer: pc.localDescription?.toJSON() });
+
+//     // realtime listen for answer
+//     roomUnsubRef.current = onSnapshot(roomRef, async (snap: DocumentSnapshot) => {
+//       const data = snap.data() as any;
+//       if (data?.answer && !pc.currentRemoteDescription) {
+//         await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
+//         setStatus("Connected to stranger!");
+//       }
+//     });
+
+//     // listen for callee ICE candidates
+//     const calleeCandidates = collection(roomRef, "calleeCandidates");
+//     calleeCandUnsubRef.current = onSnapshot(calleeCandidates, (snap: QuerySnapshot) => {
+//       snap.docChanges().forEach((change) => {
+//         if (change.type === "added") {
+//           const cand = change.doc.data();
+//           pc.addIceCandidate(new RTCIceCandidate(cand)).catch((e) => console.error("addIceCandidate caller:", e));
+//         }
+//       });
+//     });
+//   }
+
+//   // ------------------ CALLEE ------------------
+//   async function calleeFlow(pc: RTCPeerConnection, roomRef: any) {
+//     // callee will post its ICE candidates to calleeCandidates
+//     const calleeCandidates = collection(roomRef, "calleeCandidates");
+//     pc.onicecandidate = async (event) => {
+//       if (event.candidate) {
+//         await addDoc(calleeCandidates, event.candidate.toJSON());
+//       }
+//     };
+
+//     // get the offer from room doc
+//     const roomSnap = await getDoc(roomRef);
+//     const data = roomSnap.data() as any;
+//     if (!data?.offer) throw new Error("No offer found in room");
+
+//     await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
+
+//     // create and set local answer
+//     const answer = await pc.createAnswer();
+//     await pc.setLocalDescription(answer);
+
+//     // store answer (serialize)
+//     await updateDoc(roomRef, { answer: pc.localDescription?.toJSON() });
+
+//     setStatus("Connected to stranger!");
+
+//     // listen for caller's ICE candidates
+//     const callerCandidates = collection(roomRef, "callerCandidates");
+//     callerCandUnsubRef.current = onSnapshot(callerCandidates, (snap: QuerySnapshot) => {
+//       snap.docChanges().forEach((change) => {
+//         if (change.type === "added") {
+//           const cand = change.doc.data();
+//           pc.addIceCandidate(new RTCIceCandidate(cand)).catch((e) => console.error("addIceCandidate callee:", e));
+//         }
+//       });
+//     });
+//   }
+
+//   // ------------------ CLEANUP ------------------
+//   function cleanupCall() {
+//     setInCall(false);
+//     setStatus("Call ended");
+
+//     // unsubscribe listeners
+//     roomUnsubRef.current?.();
+//     callerCandUnsubRef.current?.();
+//     calleeCandUnsubRef.current?.();
+
+//     // close pc and clear reference
+//     pcRef.current?.close();
+//     pcRef.current = null;
+
+//     // clear remote video stream
+//     if (remoteVideoRef.current) {
+//       const stream = remoteVideoRef.current.srcObject as MediaStream | null;
+//       stream?.getTracks().forEach((t) => t.stop());
+//       remoteVideoRef.current.srcObject = null;
+//     }
+
+//     // keep local camera running if you want; if you want to stop it here uncomment below:
+//     // if (localStreamRef.current) { localStreamRef.current.getTracks().forEach(t => t.stop()); localStreamRef.current = null; }
+//   }
+
+//   function handleEnd() {
+//     cleanupCall();
+//   }
+
+//   async function handleNext() {
+//     cleanupCall();
+//     setStatus("Finding a new stranger...");
+//     await handleStart();
+//   }
+
+//   // ------------------ UI ------------------
+//   return (
+//     <main className="min-h-screen bg-black text-white flex flex-col items-center justify-center gap-6 p-4">
+//       <h1 className="text-3xl font-bold">Mini Omegle</h1>
+//       <p className="text-gray-400 text-sm text-center">{status}</p>
+
+//       <div className="flex flex-col md:flex-row gap-4">
+//         <div className="flex flex-col items-center gap-2">
+//           <span className="text-xs text-gray-400">You</span>
+//           <video ref={localVideoRef} autoPlay muted playsInline className="w-64 h-48 bg-gray-800 rounded-xl" />
+//         </div>
+
+//         <div className="flex flex-col items-center gap-2">
+//           <span className="text-xs text-gray-400">Stranger</span>
+//           <video ref={remoteVideoRef} autoPlay playsInline className="w-64 h-48 bg-gray-800 rounded-xl" />
+//         </div>
+//       </div>
+
+//       <div className="flex gap-3 mt-4">
+//         <button onClick={handleStart} disabled={inCall} className="px-4 py-2 bg-green-600 rounded disabled:bg-gray-700">
+//           Start
+//         </button>
+
+//         <button onClick={handleNext} disabled={!inCall} className="px-4 py-2 bg-blue-600 rounded disabled:bg-gray-700">
+//           Next
+//         </button>
+
+//         <button onClick={handleEnd} disabled={!inCall} className="px-4 py-2 bg-red-600 rounded disabled:bg-gray-700">
+//           End
+//         </button>
+//       </div>
+//     </main>
+//   );
+// }
+
 // "use client";
 
 // import {
@@ -145,6 +893,9 @@
 
 
 "use client";
+import { useEffect } from "react";
+import { signInAnonymously } from "firebase/auth";
+import { auth } from "../src/lib/firebase";
 
 import { useRef, useState } from "react";
 import {
@@ -247,6 +998,20 @@ const iceServers: RTCIceServer[] = [
 
 
 export default function Home() {
+
+  useEffect(() => {
+    if (auth.currentUser) return;
+  
+    signInAnonymously(auth)
+      .then((cred) => {
+        console.log("✅ Anonymous UID:", cred.user.uid);
+      })
+      .catch((err) => {
+        console.error("❌ Auth error:", err);
+      });
+  }, []);
+  
+
   const localVideoRef = useRef<HTMLVideoElement | null>(null);
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
 
@@ -632,3 +1397,5 @@ export default function Home() {
     </main>
   );
 }
+
+
