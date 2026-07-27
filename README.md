@@ -63,31 +63,38 @@ A real-time video chat web application built with **Next.js 16**, **WebRTC**, an
 ## 🏗️ System Architecture
 
 ```mermaid
-graph TD
-    A["🖥️ User Browser A<br/>(Next.js + WebRTC)"] -->|"1. getUserMedia()"| B["📷 Local Camera/Mic"]
-    D["🖥️ User Browser B<br/>(Next.js + WebRTC)"] -->|"1. getUserMedia()"| E["📷 Local Camera/Mic"]
+graph TB
+    subgraph Clients
+        direction LR
+        A["🖥️ Browser A<br>(Caller)"]
+        B["🖥️ Browser B<br>(Callee)"]
+    end
 
-    A -->|"2. Write SDP Offer"| C["🔥 Firebase Firestore<br/>(Signaling Server)"]
-    D -->|"3. Read Offer, Write SDP Answer"| C
+    subgraph Infrastructure
+        direction LR
+        C["🔥 Firebase Firestore<br>(Signaling Server)"]
+        D["🌐 STUN/TURN Servers<br>(Metered.ca)"]
+        E["🔐 Firebase Auth<br>(Anonymous Auth)"]
+    end
 
-    A -->|"4. Exchange ICE Candidates"| C
-    D -->|"4. Exchange ICE Candidates"| C
+    A <==>|"Direct P2P Media Stream<br/>(Video & Audio)"| B
+    
+    A -->|"1. SDP Offer & ICE"| C
+    C -->|"2. SDP Offer & ICE"| B
+    B -->|"3. SDP Answer & ICE"| C
+    C -->|"4. SDP Answer & ICE"| A
 
-    A <-->|"5. Direct P2P Media Stream<br/>(Video + Audio)"| D
-
-    A -->|"NAT Traversal"| F["🌐 STUN/TURN Servers<br/>(Metered.ca)"]
-    D -->|"NAT Traversal"| F
-
-    A -->|"Anonymous Sign-in"| G["🔐 Firebase Auth<br/>(Anonymous UIDs)"]
-    D -->|"Anonymous Sign-in"| G
+    A -.-|"NAT Traversal"| D
+    B -.-|"NAT Traversal"| D
+    
+    A -.-|"Login"| E
+    B -.-|"Login"| E
 
     style A fill:#1a1a2e,stroke:#00d4ff,color:#fff
-    style D fill:#1a1a2e,stroke:#00d4ff,color:#fff
+    style B fill:#1a1a2e,stroke:#00d4ff,color:#fff
     style C fill:#ff6b35,stroke:#ff6b35,color:#fff
-    style F fill:#6c5ce7,stroke:#6c5ce7,color:#fff
-    style G fill:#f39c12,stroke:#f39c12,color:#fff
-    style B fill:#2d3436,stroke:#636e72,color:#fff
-    style E fill:#2d3436,stroke:#636e72,color:#fff
+    style D fill:#6c5ce7,stroke:#6c5ce7,color:#fff
+    style E fill:#f39c12,stroke:#f39c12,color:#fff
 ```
 
 ### How It Works (Summary)
