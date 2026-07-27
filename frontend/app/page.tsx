@@ -327,7 +327,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white flex flex-col items-center justify-center p-4 relative overflow-hidden">
 
-      <h1 className="text-3xl font-bold tracking-tight mb-4">Mini Omegle</h1>
+      <h1 className="text-3xl font-bold tracking-tight mb-4">Vibe Connect</h1>
 
 
       <div className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm text-gray-300 backdrop-blur-md mb-4">
