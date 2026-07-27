@@ -62,48 +62,32 @@ A real-time video chat web application built with **Next.js 16**, **WebRTC**, an
 
 ## 🏗️ System Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                        VIBE CONNECT ARCHITECTURE                    │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│   ┌──────────────┐         Firebase Firestore          ┌──────────────┐
-│   │  Browser A   │         (Signaling Server)          │  Browser B   │
-│   │              │                                     │              │
-│   │  Next.js App │   1. Write SDP Offer to Firestore   │  Next.js App │
-│   │  + WebRTC    │ ──────────────────────────────────►  │  + WebRTC    │
-│   │              │                                     │              │
-│   │              │   2. Read Offer, Write SDP Answer   │              │
-│   │              │ ◄──────────────────────────────────  │              │
-│   │              │                                     │              │
-│   │              │   3. Exchange ICE Candidates         │              │
-│   │              │ ◄────────────────────────────────►  │              │
-│   │              │                                     │              │
-│   │              │   4. Direct P2P Media Stream         │              │
-│   │              │ ◄══════════════════════════════════► │              │
-│   └──────┬───────┘                                     └──────┬───────┘
-│          │                                                    │        │
-│          │         ┌──────────────────────┐                   │        │
-│          └────────►│  STUN/TURN Servers   │◄──────────────────┘        │
-│                    │  (Metered.ca)        │                            │
-│                    │                      │                            │
-│                    │  • STUN: Discover    │                            │
-│                    │    public IP/port    │                            │
-│                    │  • TURN: Relay       │                            │
-│                    │    media if P2P      │                            │
-│                    │    fails             │                            │
-│                    └──────────────────────┘                            │
-│                                                                       │
-│   ┌───────────────────────────────────────────────────────────┐       │
-│   │                    Firebase Services                       │       │
-│   │                                                           │       │
-│   │  ┌─────────────────┐    ┌──────────────────────────┐     │       │
-│   │  │  Anonymous Auth  │    │  Firestore Database       │     │       │
-│   │  │  (Session UIDs)  │    │  • waiting (matchmaking)  │     │       │
-│   │  │                  │    │  • rooms (signaling)       │     │       │
-│   │  └─────────────────┘    └──────────────────────────┘     │       │
-│   └───────────────────────────────────────────────────────────┘       │
-└───────────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    A["🖥️ User Browser A<br/>(Next.js + WebRTC)"] -->|"1. getUserMedia()"| B["📷 Local Camera/Mic"]
+    D["🖥️ User Browser B<br/>(Next.js + WebRTC)"] -->|"1. getUserMedia()"| E["📷 Local Camera/Mic"]
+
+    A -->|"2. Write SDP Offer"| C["🔥 Firebase Firestore<br/>(Signaling Server)"]
+    D -->|"3. Read Offer, Write SDP Answer"| C
+
+    A -->|"4. Exchange ICE Candidates"| C
+    D -->|"4. Exchange ICE Candidates"| C
+
+    A <-->|"5. Direct P2P Media Stream<br/>(Video + Audio)"| D
+
+    A -->|"NAT Traversal"| F["🌐 STUN/TURN Servers<br/>(Metered.ca)"]
+    D -->|"NAT Traversal"| F
+
+    A -->|"Anonymous Sign-in"| G["🔐 Firebase Auth<br/>(Anonymous UIDs)"]
+    D -->|"Anonymous Sign-in"| G
+
+    style A fill:#1a1a2e,stroke:#00d4ff,color:#fff
+    style D fill:#1a1a2e,stroke:#00d4ff,color:#fff
+    style C fill:#ff6b35,stroke:#ff6b35,color:#fff
+    style F fill:#6c5ce7,stroke:#6c5ce7,color:#fff
+    style G fill:#f39c12,stroke:#f39c12,color:#fff
+    style B fill:#2d3436,stroke:#636e72,color:#fff
+    style E fill:#2d3436,stroke:#636e72,color:#fff
 ```
 
 ### How It Works (Summary)
