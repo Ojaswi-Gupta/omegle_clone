@@ -2,8 +2,8 @@ import "./globals.css";
 import { ReactNode } from "react";
 
 export const metadata = {
-  title: "Mini Omegle",
-  description: "Omegle-style video chat website",
+  title: "Vibe Connect",
+  description: "Anonymous video chat — connect with strangers instantly",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

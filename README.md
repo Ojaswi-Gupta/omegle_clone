@@ -1,6 +1,6 @@
-# Mini Omegle Clone
+# Vibe Connect
 
-A web-based video chat application inspired by Omegle, built with modern web technologies. This project allows users to connect anonymously with strangers via peer-to-peer video and audio calls.
+A web-based anonymous video chat application built with modern web technologies. Vibe Connect allows users to connect anonymously with strangers via peer-to-peer video and audio calls.
 
 **🌍 Live Demo:** [https://omegle-clone-silk.vercel.app](https://omegle-clone-silk.vercel.app)
 
