@@ -211,7 +211,11 @@ vibe-connect/
 │   │   ├── page.tsx                 # Main page — all video chat logic
 │   │   ├── layout.tsx               # Root layout with metadata
 │   │   ├── globals.css              # Global styles (Tailwind imports)
+│   │   ├── extra.css                # Custom CSS for fingerprint button & animations
 │   │   └── favicon.ico              # Site favicon
+│   │
+│   ├── components/
+│   │   └── ParticleNetwork.tsx      # Canvas-based particle/ripple animation for the landing page
 │   │
 │   ├── src/
 │   │   └── lib/
@@ -240,6 +244,8 @@ vibe-connect/
 | `frontend/src/lib/firebase.ts` | Initializes Firebase app, exports `db` (Firestore) and `auth` (Auth) instances |
 | `frontend/app/layout.tsx` | Root HTML layout, sets `<title>` and `<meta>` tags |
 | `frontend/app/globals.css` | Tailwind CSS imports and global styles |
+| `frontend/app/extra.css` | Custom CSS animations and specific styles for the fingerprint button |
+| `frontend/components/ParticleNetwork.tsx` | Handles the visual canvas ripple animations for the login/start sequence |
 
 ---
 
@@ -321,6 +327,8 @@ All environment variables are prefixed with `NEXT_PUBLIC_` because they are used
 | `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` | ✅ | Firebase storage bucket URL |
 | `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | ✅ | Firebase Cloud Messaging sender ID |
 | `NEXT_PUBLIC_FIREBASE_APP_ID` | ✅ | Firebase app ID |
+| `NEXT_PUBLIC_TURN_USERNAME` | ✅ | TURN server username (e.g., from metered.ca) |
+| `NEXT_PUBLIC_TURN_CREDENTIAL` | ✅ | TURN server credential |
 
 ### Where to find these values
 
@@ -438,8 +446,8 @@ const iceServers: RTCIceServer[] = [
       "turn:global.relay.metered.ca:80?transport=udp",
       "turns:global.relay.metered.ca:443?transport=tcp"
     ],
-    username: "your_turn_username",
-    credential: "your_turn_credential"
+    username: process.env.NEXT_PUBLIC_TURN_USERNAME,
+    credential: process.env.NEXT_PUBLIC_TURN_CREDENTIAL
   }
 ];
 ```
@@ -450,7 +458,7 @@ const iceServers: RTCIceServer[] = [
 2. Create a new app
 3. Go to **TURN Server** section
 4. Copy the TURN server URLs, username, and credential
-5. Replace the values in `page.tsx`
+5. Add the username and credential to your `.env.local` (and Vercel environment variables) as `NEXT_PUBLIC_TURN_USERNAME` and `NEXT_PUBLIC_TURN_CREDENTIAL`
 
 ---
 
