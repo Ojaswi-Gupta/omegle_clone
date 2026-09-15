@@ -37,8 +37,8 @@ const iceServers: RTCIceServer[] = [
       "turn:global.relay.metered.ca:80?transport=udp",
       "turns:global.relay.metered.ca:443?transport=tcp"
     ],
-    username: "c34780a931b136ee92464ce3",
-    credential: "QeT1XvSB+n3GnbZP"
+    username: process.env.NEXT_PUBLIC_TURN_USERNAME,
+    credential: process.env.NEXT_PUBLIC_TURN_CREDENTIAL
   }
 ];
 
